@@ -1,0 +1,20 @@
+version: '3.7'
+
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VERSION: 8u302
+    container_name: kotlin-spring-hello
+    restart: unless-stopped
+    hostname: kotlin-spring-hello
+    environment:
+      SOME_ENV_VAR: value1
+    ports:
+      - "8080:8080"
+    logging:
+     driver: "json-file"
+     options:
+       max-size: "10m"
