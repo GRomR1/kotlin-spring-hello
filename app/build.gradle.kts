@@ -5,6 +5,8 @@
  * For more details take a look at the 'Building Java & JVM projects' chapter in the Gradle
  * User Manual available at https://docs.gradle.org/7.2/userguide/building_java_projects.html
  */
+import org.gradle.language.jvm.tasks.ProcessResources
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
@@ -36,9 +38,45 @@ dependencies {
     implementation("com.google.guava:guava:30.1.1-jre")
     implementation("org.springframework.boot:spring-boot-starter-web")
 
+    // Actuator module monitor and provide production-ready features like health check-up, auditing, metrics gathering, etc.
+	implementation("org.springframework.boot:spring-boot-starter-actuator")
+
+    // Micrometer: application metrics collector
+    implementation("io.micrometer:micrometer-registry-prometheus")
+
+    implementation("io.springfox:springfox-boot-starter:3.0.0") 
+    implementation("io.springfox:springfox-swagger-ui:3.0.0")
+    implementation("io.springfox:springfox-swagger2:3.0.0")
+
+
+	testImplementation("org.springframework.boot:spring-boot-starter-test") {
+		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
+		exclude(module = "mockito-core")
+	}
+	testImplementation("org.junit.jupiter:junit-jupiter-api")
+	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
 application {
     // Define the main class for the application.
     mainClass.set("hello.world.AppKt")
+}
+
+
+(tasks.getByName("processResources") as ProcessResources).apply {
+    filesMatching("application.properties") {
+        expand(project.properties)
+    }
+}
+
+tasks.withType<KotlinCompile> {
+  kotlinOptions {
+    freeCompilerArgs = listOf("-Xjsr305=strict")
+    jvmTarget = "1.8"
+  }
+}
+
+
+tasks.withType<Test> {
+	useJUnitPlatform()
 }
